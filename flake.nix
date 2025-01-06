@@ -103,6 +103,10 @@
 
             packages = rec {
               default = buildPackage rec {
+                version =
+                  (releaseCraneLib.crateNameFromCargoToml { cargoToml = ./Cargo.toml; }).version
+                  + "+"
+                  + (if self ? shortRev then self.shortRev else "dirty");
                 src = releaseCraneLib.cleanCargoSource ./.;
                 nativeBuildInputs = [
                   pkgs.rustPlatform.bindgenHook
