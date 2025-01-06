@@ -117,7 +117,7 @@ Here is full options that configurable:
 secrets = {
   example = {
     file = ./secret/example.age;
-    mode = "640"; # default 400
+    mode = "640"; # default 0400
     owner = "root";
     group = "users";
     name = "example.toml";
@@ -138,6 +138,12 @@ If you manually set this, it will deploy to specified location instead of to `/r
 
 If you still set the path to directory to `/run/vaultix` (default value of [decryptedDir](#dd)), you will receive a warning, because you should use the `name` option instead of doing that.
 
+### mode
+
++ type: `string`
++ default: `"0400"`
+
+UNIX file permission, octal representation.
 
 ## Templates
 
@@ -153,7 +159,7 @@ templates = {
     trim = true;
 
     # permission options like secrets
-    mode = "640"; # default 400
+    mode = "640"; # default 0400
     owner = "root";
     group = "users";
     name = "example.toml";
@@ -196,7 +202,7 @@ ${config.vaultix.placeholder.some} here
 ### trim
 
 + type: `bool`
-+ default: `true`;
++ default: `true`
 
 Removing trailing and leading whitespace by default.
 
