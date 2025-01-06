@@ -1,18 +1,37 @@
-use nom::{bytes::complete::take_while_m_n, combinator::map_res, IResult};
+use nom::{
+    IResult,
+    character::complete::{char, digit1},
+    combinator::{map_res, opt},
+    sequence::preceded,
+};
 
-fn is_oct_digit(c: char) -> bool {
-    c.is_digit(8)
-}
+pub fn parse_permissions_str(input: &str) -> eyre::Result<u32> {
+    fn permissions_parser(input: &str) -> IResult<&str, u32> {
+        let parse_leading_zero = opt(char('0'));
+        let parser = preceded(parse_leading_zero, digit1);
+        map_res(parser, |octal_str: &str| u32::from_str_radix(octal_str, 8))(input)
+    }
 
-pub fn parse_octal_str(input: &str) -> Result<u32, String> {
-    match parse_octal_permissions(input) {
-        Ok((_, octal)) => Ok(octal),
-        Err(_) => Err(format!("Failed to parse octal string: {}", input)),
+    match permissions_parser(input) {
+        Ok((_, mode)) => Ok(mode),
+        Err(err) => Err(eyre::eyre!("Failed to parse permissions: {:?}", err)),
     }
 }
 
-fn parse_octal_permissions(input: &str) -> IResult<&str, u32> {
-    map_res(take_while_m_n(1, 3, is_oct_digit), |oct_str: &str| {
-        u32::from_str_radix(oct_str, 8)
-    })(input)
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_permission_string() {
+        for (s, r) in [("0700", "700"), ("700", "700"), ("400", "400")] {
+            assert_eq!(
+                parse_permissions_str(s).unwrap(),
+                u32::from_str_radix(r, 8).unwrap()
+            );
+        }
+        assert!(parse_permissions_str("33993").is_err(),);
+        assert!(parse_permissions_str("0000111").is_ok(),);
+        assert!(parse_permissions_str("1000119").is_err(),);
+    }
 }

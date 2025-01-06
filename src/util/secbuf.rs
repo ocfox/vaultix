@@ -91,7 +91,7 @@ impl SecBuf<AgeEnc> {
 }
 
 use eyre::eyre;
-use log::debug;
+use log::{debug, trace};
 
 use super::set_owner_group;
 
@@ -122,9 +122,10 @@ impl SecBuf<Plain> {
         dst: PathBuf,
     ) -> Result<()> {
         let mut the_file = {
-            let mode = crate::parser::parse_octal_str(item.mode())
+            let mode = crate::parser::parse_permissions_str(item.mode())
                 .map_err(|e| eyre!("parse octal permission err: {}", e))?;
             let permissions = Permissions::from_mode(mode);
+            trace!("apply file permission: {:?}", permissions);
 
             let file = OpenOptions::new()
                 .create(true)
