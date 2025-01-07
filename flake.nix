@@ -106,7 +106,7 @@
                 version =
                   (releaseCraneLib.crateNameFromCargoToml { cargoToml = ./Cargo.toml; }).version
                   + "+"
-                  + (if self ? shortRev then self.shortRev else "dirty");
+                  + self.shortRev or "dirty";
                 src = releaseCraneLib.cleanCargoSource ./.;
                 nativeBuildInputs = [
                   pkgs.rustPlatform.bindgenHook
