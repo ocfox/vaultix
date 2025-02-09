@@ -74,6 +74,60 @@ in
           Group of the decrypted secret.
         '';
       };
+      insert = mkOption {
+        type = types.attrsOf (
+          lib.types.submodule (submod: {
+            options = {
+              order = mkOption {
+                type = types.ints.u32;
+                description = ''
+                  Unique in `insert` section.
+                  Integer for confirm the insertion order.
+                '';
+              };
+              content = mkOption {
+                type = types.str;
+                description = ''
+                  Text to insert.
+                '';
+              };
+              _id = mkOption {
+                type =
+                  types.addCheck types.str (
+                    s:
+                    let
+                      len = builtins.stringLength s;
+                      hexChars = map toString (lib.range 0 9) ++ [
+                        "a"
+                        "b"
+                        "c"
+                        "d"
+                        "e"
+                        "f"
+                      ];
+                      chars = lib.stringToCharacters s;
+                      validateHexChars = lib.all (i: lib.elem i hexChars) chars;
+                    in
+                    (len == 64) && validateHexChars
+                  )
+                  // {
+                    description = "${types.str.description} (with check: 32 bytes hex lowercase string)";
+                  };
+                default = submod.config._module.args.name;
+                readOnly = true;
+              };
+            };
+          })
+        );
+        default = { };
+        defaultText = literalExpression ''
+          { }
+        '';
+        description = ''
+          Inserting plain text to secret.
+          See <https://github.com/milieuim/vaultix/issues/12>.
+        '';
+      };
     };
   });
 }
