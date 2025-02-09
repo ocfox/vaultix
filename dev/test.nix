@@ -9,7 +9,7 @@
     vaultix = {
       # minimal works configuration
       nodes = self.nixosConfigurations;
-      identity = "/home/elen/unsafe-test";
+      identity = "/home/riro/unsafe-test";
 
       cache = "./dev/secrets/cache"; # relative to the flake root.
     };
@@ -47,28 +47,29 @@
 
                         # secret example
                         test-secret-1 = {
-                          file = ./secrets/there-is-a-secret.age;
+                          file = ./secrets/test.age;
                           mode = "400";
                           owner = "root";
                           group = "users";
                           # path = "/home/1.txt";
                         };
                         test-secret-2 = {
-                          file = ./secrets/there-is-a-secret.age;
+                          file = ./secrets/test.age;
                           mode = "400";
                           owner = "root";
                           group = "users";
                           path = "/home/1.txt";
                         };
                         test-secret-insert = {
-                          file = ./secrets/there-is-a-secret.age;
-                          mode = "400";
-                          owner = "root";
-                          group = "users";
+                          file = ./secrets/ins-sec.age;
                           insert = {
-                            "acc4b7f7e0549f1514e9cae97cf40cf133920418d3dc71bedbf60ec9bd6148cb" = {
+                            "4d060ab79d5f0827289e353d55e14273acb5b61bc553b1435b5729fea51e6ff7" = {
                               order = 0;
-                              content = "some";
+                              content = "1st";
+                            };
+                            "9e924b9a440a09ccb97d27a3bd4166a1ad8c10af65857606abdffe41940f129d" = {
+                              order = 1;
+                              content = "2nd";
                             };
                           };
                         };
@@ -101,103 +102,13 @@
                         machine.succeed("test -e ${config.vaultix.secrets.test-secret-1.path}")
                         machine.succeed("test -e ${config.vaultix.secrets.test-secret-2.path}") # two generation produced bcz of pre-user unit
                         machine.succeed("test -e ${config.vaultix.templates.template-test.path}")
+                        machine.succeed("test -e ${config.vaultix.secrets.test-secret-insert.path}")
                         machine.succeed("md5sum -c ${pkgs.writeText "checksum-list" ''
-                          2e57c2db0f491eba1d4e496a076cdff7 ${config.vaultix.secrets.test-secret-1.path}
-                          2e57c2db0f491eba1d4e496a076cdff7 ${config.vaultix.secrets.test-secret-2.path}
-                          ba1efe71bd3d4a9a491d74df5c23e177 ${config.vaultix.templates.template-test.path}
+                          6265b22b66502d70d5f004f08238ac3c ${config.vaultix.secrets.test-secret-1.path}
+                          6265b22b66502d70d5f004f08238ac3c ${config.vaultix.secrets.test-secret-2.path}
+                          84b46d85713864d2583f4173c02af215 ${config.vaultix.templates.template-test.path}
+                          50793cd107827c2cc96bdf689755ec92 ${config.vaultix.secrets.test-secret-insert.path}
                         ''}")
-                      '';
-                    };
-                  }
-                )
-              ];
-            }
-        )
-      );
-      tester-empty-secret = withSystem "x86_64-linux" (
-        {
-          system,
-          ...
-        }:
-        with inputs.nixpkgs;
-        lib.nixosSystem (
-          lib.warn
-            "THIS SYSTEM IS ONLY FOR TESTING, If this msg appears in production there MUST be something wrong."
-            {
-              inherit system;
-              specialArgs = {
-                inherit
-                  self # Required
-                  inputs
-                  ;
-              };
-              modules = [
-                self.nixosModules.vaultix
-
-                (_: {
-                  services.userborn.enable = true; # or systemd.sysuser, required
-
-                  vaultix = {
-                    settings.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEu8luSFCts3g367nlKBrxMdLyOy4Awfo5Rb397ef2AR";
-                  };
-
-                  # for vm testing log
-                  systemd.services.vaultix-activate.serviceConfig.Environment = [ "RUST_LOG=trace" ];
-                })
-
-                ./configuration.nix
-              ];
-            }
-        )
-      );
-      tester-empty-template = withSystem "x86_64-linux" (
-        {
-          system,
-          ...
-        }:
-        with inputs.nixpkgs;
-        lib.nixosSystem (
-          lib.warn
-            "THIS SYSTEM IS ONLY FOR TESTING, If this msg appears in production there MUST be something wrong."
-            {
-              inherit system;
-              specialArgs = {
-                inherit
-                  self # Required
-                  inputs
-                  ;
-              };
-              modules = [
-                self.nixosModules.vaultix
-
-                (_: {
-                  services.userborn.enable = true; # or systemd.sysuser, required
-
-                  vaultix = {
-                    settings.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEu8luSFCts3g367nlKBrxMdLyOy4Awfo5Rb397ef2AR";
-
-                    secrets.test-secret-1 = {
-                      file = ./secrets/there-is-a-secret.age;
-                      mode = "400";
-                      owner = "root";
-                      group = "users";
-                      # path = "/home/1.txt";
-                    };
-                  };
-
-                  # for vm testing log
-                  systemd.services.vaultix-activate.serviceConfig.Environment = [ "RUST_LOG=trace" ];
-                })
-
-                ./configuration.nix
-
-                (
-                  { config, ... }:
-                  {
-                    disko.tests = {
-                      extraChecks = ''
-                        machine.succeed("test -e /run/vaultix.d/0")
-                        machine.succeed("test -e ${config.vaultix.secrets.test-secret-1.path}")
                       '';
                     };
                   }

@@ -2,7 +2,7 @@ pub mod placeholder;
 pub mod template;
 
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash, hash::Hasher};
 
 pub type SecretSet = HashMap<String, Secret>;
 pub type TemplateSet = HashMap<String, Template>;
@@ -20,6 +20,20 @@ pub struct Profile {
 #[derive(Debug, Deserialize)]
 pub struct PlaceHolderSet(pub HashMap<String, String>);
 
+#[derive(Debug, Deserialize, PartialEq, Clone, Eq)]
+pub struct InsertSet(pub HashMap<String, Insert>);
+
+impl Hash for InsertSet {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let mut entries: Vec<(&String, &Insert)> = self.0.iter().collect();
+        entries.sort_by_key(|(k, _)| *k);
+
+        for entry in entries {
+            entry.hash(state);
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Clone, Hash, Eq, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Secret {
@@ -30,6 +44,7 @@ pub struct Secret {
     pub name: String,
     pub owner: String,
     pub path: String,
+    pub insert: InsertSet,
 }
 
 #[derive(Debug, Deserialize, Clone, Hash, Eq, PartialEq, Default)]
@@ -42,6 +57,13 @@ pub struct Template {
     pub mode: String,
     pub owner: String,
     pub path: String,
+}
+
+#[derive(Debug, Deserialize, Clone, Hash, Eq, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Insert {
+    pub order: u32,
+    pub content: String,
 }
 
 #[derive(Debug, Deserialize)]

@@ -213,7 +213,13 @@ impl Profile {
                 let raw_content = plain_map
                     .get(n)
                     .wrap_err_with(|| eyre!("decrypted content must found"))?;
-                let plain = SecBuf::<Plain>::new(raw_content.clone());
+                let ins_set = &n.insert;
+                let mut plain = SecBuf::<Plain>::new(raw_content.clone());
+
+                if !ins_set.0.is_empty() {
+                    plain.insert(ins_set);
+                }
+
                 let item = &n as &dyn DeployFactor;
                 let dst: PathBuf = generate_dst!(item, self.settings, target_extract_dir_with_gen);
 

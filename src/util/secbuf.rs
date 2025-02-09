@@ -28,6 +28,9 @@ impl<T> SecBuf<T> {
     pub fn inner(self) -> Vec<u8> {
         self.buf
     }
+    pub fn inner_ref(&self) -> &Vec<u8> {
+        self.buf.as_ref()
+    }
 
     pub fn hash_with(&self, host_ssh_recip: &str) -> blake3::Hash {
         let mut hasher = blake3::Hasher::new();
@@ -93,6 +96,9 @@ impl SecBuf<AgeEnc> {
 use eyre::eyre;
 use log::{debug, trace};
 
+use crate::parser::extract_all_hashes;
+use crate::profile::InsertSet;
+
 use super::set_owner_group;
 
 impl SecBuf<Plain> {
@@ -142,11 +148,43 @@ impl SecBuf<Plain> {
         the_file.write_all(self.buf_ref())?;
         Ok(())
     }
+
+    pub fn insert(&mut self, ins_set: &InsertSet) {
+        let ins_map = &ins_set.0;
+        let mut hash_extract_res = vec![];
+
+        let self_string = String::from_utf8(self.inner_ref().clone()).expect("must");
+
+        extract_all_hashes(self_string.as_str(), &mut hash_extract_res);
+
+        log::trace!("{:?}", &hash_extract_res);
+
+        let mut ins_map: Vec<_> = ins_map.into_iter().collect();
+
+        ins_map.sort_by_key(|(_, v)| v.order);
+
+        let mut new_string = self_string.clone();
+
+        ins_map.iter().for_each(|(k, v)| {
+            if hash_extract_res.contains(&k.as_str()) {
+                log::debug!("inserting content corresponding to placeholder: {k}");
+                let braced_hash_str = format!("{{{{ {} }}}}", k);
+                let string_after_this_replace =
+                    new_string.replace(braced_hash_str.as_str(), &v.content);
+                new_string = string_after_this_replace;
+            } else {
+                log::error!("corresponding content of existing placeholder not found: {k}");
+            }
+        });
+        *self = SecBuf::<Plain>::new(new_string.into_bytes())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use std::{io::Write, str::FromStr};
+
+    use nom::AsBytes;
 
     use super::*;
 
@@ -179,5 +217,14 @@ mod tests {
         let boxed_key: Box<dyn Identity> = Box::new(key);
 
         let _ = buf.renc(boxed_key.as_ref(), iter::once(r)).unwrap();
+    }
+
+    #[test]
+    fn b3_hex_decode() {
+        let _ = blake3::Hash::from_hex(
+            hex::decode("21634884238b81de20c58fab119c9e52922c57256234b3658db81c7b9e1f71d5")
+                .unwrap()
+                .as_bytes(),
+        );
     }
 }

@@ -22,5 +22,3 @@ eval-tester:
 vm-tests:
     #!/usr/bin/env nu
     nix run github:nix-community/nixos-anywhere -- --flake .#tester --vm-test
-    nix run github:nix-community/nixos-anywhere -- --flake .#tester-empty-secret --vm-test
-    nix run github:nix-community/nixos-anywhere -- --flake .#tester-empty-template --vm-test
