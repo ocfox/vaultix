@@ -43,21 +43,35 @@
                       settings.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEu8luSFCts3g367nlKBrxMdLyOy4Awfo5Rb397ef2AR";
 
                       beforeUserborn = [ "test-secret-2" ];
+                      secrets = {
 
-                      # secret example
-                      secrets.test-secret-1 = {
-                        file = ./secrets/there-is-a-secret.age;
-                        mode = "400";
-                        owner = "root";
-                        group = "users";
-                        # path = "/home/1.txt";
-                      };
-                      secrets.test-secret-2 = {
-                        file = ./secrets/there-is-a-secret.age;
-                        mode = "400";
-                        owner = "root";
-                        group = "users";
-                        path = "/home/1.txt";
+                        # secret example
+                        test-secret-1 = {
+                          file = ./secrets/there-is-a-secret.age;
+                          mode = "400";
+                          owner = "root";
+                          group = "users";
+                          # path = "/home/1.txt";
+                        };
+                        test-secret-2 = {
+                          file = ./secrets/there-is-a-secret.age;
+                          mode = "400";
+                          owner = "root";
+                          group = "users";
+                          path = "/home/1.txt";
+                        };
+                        test-secret-insert = {
+                          file = ./secrets/there-is-a-secret.age;
+                          mode = "400";
+                          owner = "root";
+                          group = "users";
+                          insert = {
+                            "acc4b7f7e0549f1514e9cae97cf40cf133920418d3dc71bedbf60ec9bd6148cb" = {
+                              order = 0;
+                              content = "some";
+                            };
+                          };
+                        };
                       };
 
                       # template example
