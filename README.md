@@ -13,6 +13,7 @@ Highly inspired by [agenix-rekey](https://github.com/oddlama/agenix-rekey) and [
 + Parallel encryption at host granularity
 + Support secure identity with passphrase
 + Support template for reusing insensitive stanza
++ Support secret as template (https://github.com/milieuim/vaultix/issues/12)
 + Support Yubikey PIV with [age-yubikey-plugin](https://github.com/str4d/age-plugin-yubikey)
 + Fits well with new `sysuser` nixos userborn machenism
 + Design with [flake-parts](https://flake.parts/) and modulized flake

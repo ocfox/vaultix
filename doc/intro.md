@@ -9,6 +9,7 @@ This project is highly inspired by [agenix-rekey](https://github.com/oddlama/age
 + Parallel encryption at host granularity
 + Support secure identity with passphrase
 + Support template for reusing insensitive stanza
++ Support secret as template [#12](https://github.com/milieuim/vaultix/issues/12)
 + Support Yubikey PIV with [age-yubikey-plugin](https://github.com/str4d/age-plugin-yubikey)
 + Small closure size increase[^1]
 + Fits well with new `sysuser` nixos userborn machenism[^2]
