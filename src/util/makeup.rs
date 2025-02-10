@@ -133,10 +133,17 @@ impl<'a> RencInstance<'a> {
 
                         let dst_ctt_map_ref = dst_ctt_map.clone();
 
-                        let buf = dst_ctt_map_ref
+                        let buf = if let Some(o) = dst_ctt_map_ref
                             .get(inrepo_path)
                             .and_then(|s| sec_plain_map.get(*s))
-                            .expect("must have");
+                        {
+                            o
+                        } else {
+                            log::error!("Getting {:?} error", s);
+                            panic!(
+                                "The secret store MAY contains stuff encrypted by other identity"
+                            )
+                        };
 
                         let ctt = match buf.clone().encrypt(iter::once(recip.as_ref())) {
                             Ok(o) => o,

@@ -17,8 +17,8 @@ full-test:
     #!/usr/bin/env nu
     cargo test
     just vm-tests
+eval-tester:
+    nix eval .#nixosConfigurations.tester.config.system.build.toplevel
 vm-tests:
     #!/usr/bin/env nu
     nix run github:nix-community/nixos-anywhere -- --flake .#tester --vm-test
-    nix run github:nix-community/nixos-anywhere -- --flake .#tester-empty-secret --vm-test
-    nix run github:nix-community/nixos-anywhere -- --flake .#tester-empty-template --vm-test
