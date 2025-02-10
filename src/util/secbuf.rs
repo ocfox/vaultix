@@ -159,7 +159,7 @@ impl SecBuf<Plain> {
 
         log::trace!("{:?}", &hash_extract_res);
 
-        let mut ins_map: Vec<_> = ins_map.into_iter().collect();
+        let mut ins_map: Vec<_> = ins_map.iter().collect();
 
         ins_map.sort_by_key(|(_, v)| v.order);
 
