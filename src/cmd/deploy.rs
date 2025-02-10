@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fs::{self, Permissions, ReadDir},
     io::{self, ErrorKind},
     iter,
@@ -8,7 +9,7 @@ use std::{
 
 use crate::{
     cmd::renc::CompleteProfile,
-    profile::{DeployFactor, HostKey, Profile},
+    profile::{DeployFactor, HostKey, Profile, Secret},
     util::{
         secbuf::{Plain, SecBuf},
         secmap::{RencBuilder, RencCtx},
@@ -155,14 +156,27 @@ impl Profile {
         let templates = self.templates.iter().filter(|i| if_early(i.0));
 
         let complete = CompleteProfile::from_iter(iter::once(self));
+
         let ctx = RencCtx::create(&complete)?;
 
-        let plain_map = RencBuilder::create(&complete)
+        let plain_map: HashMap<&Secret, Vec<u8>> = RencBuilder::create(&complete)
             .build_instore()
             .renced_stored(&ctx, self.settings.cache_in_store.clone().into())
             .bake_decrypted(host_prv_key)
-            .wrap_err_with(|| {
-                eyre!("decrypt failed, please delete cache dir and try re-encrypt")
+            .wrap_err_with(|| eyre!("decrypt failed, please delete cache dir and try re-encrypt"))
+            .and_then(|i| {
+                i.into_iter()
+                    .map(|(k, v)| {
+                        let ins_set = &k.insert.0;
+                        if !ins_set.is_empty() {
+                            let mut plain = SecBuf::<Plain>::new(v);
+                            plain.insert(&k.insert);
+                            return Ok((k, plain.inner()));
+                        } else {
+                            return Ok((k, v));
+                        }
+                    })
+                    .collect()
             })?;
 
         let generation = self.init_decrypted_mount_point()?;
@@ -213,12 +227,7 @@ impl Profile {
                 let raw_content = plain_map
                     .get(n)
                     .wrap_err_with(|| eyre!("decrypted content must found"))?;
-                let ins_set = &n.insert;
-                let mut plain = SecBuf::<Plain>::new(raw_content.clone());
-
-                if !ins_set.0.is_empty() {
-                    plain.insert(ins_set);
-                }
+                let plain = SecBuf::<Plain>::new(raw_content.clone());
 
                 let item = &n as &dyn DeployFactor;
                 let dst: PathBuf = generate_dst!(item, self.settings, target_extract_dir_with_gen);
