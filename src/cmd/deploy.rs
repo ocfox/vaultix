@@ -171,9 +171,9 @@ impl Profile {
                         if !ins_set.is_empty() {
                             let mut plain = SecBuf::<Plain>::new(v);
                             plain.insert(&k.insert);
-                            return Ok((k, plain.inner()));
+                            Ok((k, plain.inner()))
                         } else {
-                            return Ok((k, v));
+                            Ok((k, v))
                         }
                     })
                     .collect()
