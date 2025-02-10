@@ -93,7 +93,7 @@ test there is a plain text
 and another for inserting.
 ```
 
-This will not affect the template function.
+This will not affect the template function, and the processing is before templating.
 
 ### order
 + type: u32
