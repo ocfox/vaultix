@@ -80,9 +80,15 @@ in
             options = {
               order = mkOption {
                 type = types.ints.u32;
+                default = 0;
+                defaultText = literalExpression ''
+                  0
+                '';
                 description = ''
                   Unique in `insert` section.
-                  Integer for confirm the insertion order.
+                  Integer for confirming the insertion order.
+                  Recommended to set explicity since nix doesn't
+                  have ordered attrset.
                 '';
               };
               content = mkOption {

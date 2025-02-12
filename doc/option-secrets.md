@@ -97,11 +97,13 @@ This will not affect the template function, and the processing is before templat
 
 ### order
 + type: u32
-+ no default, must be set
++ default: 0
 
-Since nix attrset has no order, this is for marking the insert sequence of these content.
+Since nix attrset has no order, this is for explicity set the insert sequence of these content.
 
-These SHOULD be different in same `insert` attrset, the smaller one will be inserted first.
+These RECOMMENDED to be different in same `insert` attrset, the smaller one will be inserted first.
+
+If all order in a `insert` section not set, it expected to follow the alphabetical order of attrset names. 
 
 ### content
 + type: string
