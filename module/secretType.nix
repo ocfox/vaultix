@@ -87,7 +87,7 @@ in
                 description = ''
                   Unique in `insert` section.
                   Integer for confirming the insertion order.
-                  Recommended to set explicity since nix doesn't
+                  Recommended to set explicitly since nix doesn't
                   have ordered attrset.
                 '';
               };
