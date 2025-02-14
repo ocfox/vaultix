@@ -139,10 +139,10 @@ impl<'a> RencInstance<'a> {
                         {
                             o
                         } else {
-                            log::error!("Getting {:?} error", s);
-                            panic!(
-                                "The secret store MAY contains stuff encrypted by other identity"
-                            )
+                            res.lock().expect("must success").push(Err(eyre!(
+                                "The secret store MAY contains stuff encrypted by other identity: {inrepo_path}"
+                            )).wrap_err_with(||eyre!("Getting {:?} error", s)));
+                            return;
                         };
 
                         let ctt = match buf.clone().encrypt(iter::once(recip.as_ref())) {
