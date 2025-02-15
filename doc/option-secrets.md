@@ -120,3 +120,9 @@ If you'd like to set this multiline, just use nix multiline literal string synta
 ```
 
 then will be insert as it be.
+
+## cleanPlaceholder
++ type: bool
++ default: false
+
+After the insertion complete, clean the remaining placeholder which formats `{{ $32bytes_hex_str }}`.

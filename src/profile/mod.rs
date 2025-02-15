@@ -45,6 +45,7 @@ pub struct Secret {
     pub owner: String,
     pub path: String,
     pub insert: InsertSet,
+    pub clean_placeholder: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Hash, Eq, PartialEq, Default)]

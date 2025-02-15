@@ -149,7 +149,7 @@ impl SecBuf<Plain> {
         Ok(())
     }
 
-    pub fn insert(&mut self, ins_set: &InsertSet) {
+    pub fn insert(&mut self, ins_set: &InsertSet, clean_after_replace_complete: bool) {
         let ins_map = &ins_set.0;
         let mut hash_extract_res = vec![];
 
@@ -176,16 +176,19 @@ impl SecBuf<Plain> {
                 new_string = string_after_this_replace;
                 hash_extract_res.retain(|&x| x != k.as_str());
             } else {
-                log::error!("corresponding content of existing placeholder not found: {k}");
+                log::error!(
+                    "corresponding content of existing placeholder not found in `insert`: {k}"
+                );
             }
         });
-        // clean remaining placeholder
-        hash_extract_res.iter().for_each(|i| {
-            let braced_hash_str = brace_the_str(i);
-            let string_after_clean =
-                new_string.replace(braced_hash_str.as_str(), String::default().as_str());
-            new_string = string_after_clean;
-        });
+        if clean_after_replace_complete {
+            hash_extract_res.iter().for_each(|i| {
+                let braced_hash_str = brace_the_str(i);
+                let string_after_clean =
+                    new_string.replace(braced_hash_str.as_str(), String::default().as_str());
+                new_string = string_after_clean;
+            });
+        }
         *self = SecBuf::<Plain>::new(new_string.into_bytes())
     }
 }

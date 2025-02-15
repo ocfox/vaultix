@@ -168,9 +168,9 @@ impl Profile {
                 i.into_iter()
                     .map(|(k, v)| {
                         let ins_set = &k.insert.0;
-                        if !ins_set.is_empty() {
+                        if !ins_set.is_empty() || k.clean_placeholder {
                             let mut plain = SecBuf::<Plain>::new(v);
-                            plain.insert(&k.insert);
+                            plain.insert(&k.insert, k.clean_placeholder);
                             Ok((k, plain.inner()))
                         } else {
                             Ok((k, v))

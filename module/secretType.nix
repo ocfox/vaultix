@@ -10,6 +10,7 @@ let
     types
     elem
     mkOption
+    mkEnableOption
     literalExpression
     ;
 in
@@ -72,6 +73,12 @@ in
         '';
         description = ''
           Group of the decrypted secret.
+        '';
+      };
+      cleanPlaceholder = (mkEnableOption { }) // {
+        description = ''
+          After the insertion complete, clean the remaining
+          placeholder which formats `{{ $32bytes_hex_str }}`.
         '';
       };
       insert = mkOption {
