@@ -165,16 +165,26 @@ impl SecBuf<Plain> {
 
         let mut new_string = self_string.clone();
 
+        let brace_the_str = |s: &str| -> String { format!("{{{{ {} }}}}", s) };
+
         ins_map.iter().for_each(|(k, v)| {
             if hash_extract_res.contains(&k.as_str()) {
                 log::debug!("inserting content corresponding to placeholder: {k}");
-                let braced_hash_str = format!("{{{{ {} }}}}", k);
+                let braced_hash_str = brace_the_str(k);
                 let string_after_this_replace =
                     new_string.replace(braced_hash_str.as_str(), &v.content);
                 new_string = string_after_this_replace;
+                hash_extract_res.retain(|&x| x != k.as_str());
             } else {
                 log::error!("corresponding content of existing placeholder not found: {k}");
             }
+        });
+        // clean remaining placeholder
+        hash_extract_res.iter().for_each(|i| {
+            let braced_hash_str = brace_the_str(i);
+            let string_after_clean =
+                new_string.replace(braced_hash_str.as_str(), String::default().as_str());
+            new_string = string_after_clean;
         });
         *self = SecBuf::<Plain>::new(new_string.into_bytes())
     }
