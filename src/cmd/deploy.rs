@@ -18,7 +18,7 @@ use crate::{
 
 use crate::parser::recipient::RawRecip;
 use age::{Identity, Recipient};
-use eyre::{Context, ContextCompat, Result, eyre};
+use eyre::{Context, ContextCompat, Result, bail, eyre};
 use hex::decode;
 use lib::extract_all_hashes;
 use log::{debug, error, info};
@@ -154,6 +154,22 @@ impl Profile {
         let secrets = self.secrets.values().filter(|i| if_early(&i.id));
 
         let templates = self.templates.iter().filter(|i| if_early(i.0));
+
+        let symlink_dst = if early {
+            self.decrypted_dir_for_user()
+        } else {
+            self.decrypted_dir()
+        };
+
+        match fs::symlink_metadata(symlink_dst) {
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {}
+            e @ Err(_) => e.map(|_| ())?,
+            Ok(res) => {
+                if !res.file_type().is_symlink() {
+                    bail!("The decrypted dir {symlink_dst} should be symlink. abort")
+                }
+            }
+        }
 
         let complete = CompleteProfile::from_iter(iter::once(self));
 
@@ -305,12 +321,6 @@ impl Profile {
         } else {
             info!("no template need to deploy. finished");
         }
-
-        let symlink_dst = if early {
-            self.decrypted_dir_for_user()
-        } else {
-            self.decrypted_dir()
-        };
 
         match std::fs::remove_file(symlink_dst) {
             Err(e) if e.kind() == io::ErrorKind::NotFound => {}
