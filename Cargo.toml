@@ -1,6 +1,6 @@
 [package]
 name = "vaultix"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2024"
 resolver = "2"
 
@@ -13,7 +13,7 @@ default = ["plugin"]
 plugin = ["age/plugin"]
 
 [dependencies]
-age = { version = "0.11.0", features = ["ssh"]}
+age = { version = "0.11.1", features = ["ssh"]}
 argh = "0.1.12"
 blake3 = "1.5.4"
 console = "0.15.8"
