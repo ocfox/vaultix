@@ -9,7 +9,7 @@ The option is identical to [flakeModule](./flake-module.md), but different way t
 
 
 ```nix
-vaultix = vaultix.configure {
+vaultix = inputs.vaultix.configure {
 
   localFlake = self; # different from flakeModule way
 
@@ -34,7 +34,7 @@ In this way your flake will looks like:
     vaultix.url = "github:milieuim/vaultix";
   };
 
-  outputs = { self, nixpkgs, ... }@inputs: {
+  outputs = { self, nixpkgs, vaultix, ... }@inputs: {
     nixosConfigurations.my-nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
 
@@ -52,7 +52,7 @@ In this way your flake will looks like:
     
       localFlake = self; # different from flakeModule way
     
-      # identical
+      # identical with flakeModule way
       nodes = self.nixosConfigurations;
       identity = self + "/age-yubikey-identity-deadbeef.txt.pub";
       extraRecipients = [ ];

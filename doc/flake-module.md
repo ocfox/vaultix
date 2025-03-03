@@ -8,13 +8,32 @@ This is a flake module configuration, it should be written in your flake top-lev
 
 You could find the full definition [here](https://github.com/milieuim/vaultix/blob/main/flake-module.nix)
 
+---
+
+First of all, import the vaultix flake module, and add basic vaultix configs:
+
 ```nix
-flake.vaultix = {
-  nodes = self.nixosConfigurations;
-  identity = "/somewhere/age-yubikey-identity-deadbeef.txt";
-  # extraRecipients = [ ];     # default
-  # cache = "./secrets/cache"; # default
-};
+#...
+
+flake-parts.lib.mkFlake { inherit inputs; } (
+  { withSystem, ... }:
+  {
+
+    # import the flake module
+    imports = [ inputs.vaultix.flakeModules.default ];
+
+    flake = {
+
+      # add vaultix flake-level config
+      vaultix = {
+        # extraRecipients = [ ];            # default, optional
+        # cache = "./secrets/cache";        # default, optional
+        # nodes = self.nixosConfigurations; # default, optional
+        identity = "/somewhere/age-yubikey-identity-deadbeef.txt";
+      };
+    };
+  });
+# ...
 ```
 
 ### nodes
@@ -32,7 +51,7 @@ nodes = inherit ((colmena.lib.makeHive self.colmena).introspect (x: x)) nodes;
 
 + type: `string or path`
 
-`Age identity file`.
+Age identity file.
 
 Supports age native secrets (recommend protected with passphrase), this could be a:
 
@@ -67,12 +86,18 @@ Since it inherited great compatibility of `age`, you could use [yubikey](https:/
 
 + type: `list of string`
 
-Recipients used for backup. Any of identity of them will able to decrypt all secrets, like the `identity`.
+Age recipients that used as backup keys. Any of them can decrypt all secrets, just like the identity, making them equally critical as [identity](#identity).
+
+This option only takes effect after you finish [editing](/nix-apps.html#edit) the secret file.
+In other words, changes to this value will not dynamically propagate to existing secrets.
+A single-line command to update all secrets globally with this option is currently unsupported
 
 ### cache
 
 **String** of path that **relative** to flake root, used for storing host public key
 re-encrypted secrets. It's default `./secrets/cache`.
+
+This directory expecting already added to git while deploying.
 
 
 ---
@@ -94,6 +119,8 @@ In this way your configuration will looks like:
     }:
     flake-parts.lib.mkFlake { inherit inputs; } ({ ... }:
     {
+      imports = [ inputs.vaultix.flakeModules.default ];
+
       flake = {
         vaultix = {
           nodes = self.nixosConfigurations;
@@ -106,7 +133,7 @@ In this way your configuration will looks like:
             lib.nixosSystem {
               inherit system;
               specialArgs = {
-                inherit self; # or..
+                inherit self; # or inputs
               };
               modules = [
                 ./configuration.nix
