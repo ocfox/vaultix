@@ -94,18 +94,7 @@ let
       };
 
       hostKeys = mkOption {
-        type = types.listOf (
-          types.submodule {
-            options = {
-              path = mkOption {
-                type = types.path;
-              };
-              type = mkOption {
-                type = types.str;
-              };
-            };
-          }
-        );
+        type = lib.types.listOf lib.types.attrs;
         default = config.services.openssh.hostKeys;
         defaultText = literalExpression "config.services.openssh.hostKeys";
         readOnly = true;
