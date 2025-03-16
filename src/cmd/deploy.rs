@@ -57,7 +57,7 @@ impl_get_settings!([
     host_pubkey
 ]);
 
-// key type coresponding to type of element of `services.openssh.hostKeys` in nixos module
+// key type corresponding to type of element of `services.openssh.hostKeys` in nixos module
 #[derive(Display)]
 #[strum(serialize_all = "lowercase")]
 enum ModKeyType {

@@ -262,7 +262,7 @@ impl<'a> RencData<'a, InStore> {
                                 return decrypt_res;
                             }
                         }
-                        Err(eyre!("ohnono"))
+                        Err(eyre!("no key is able to decrypt the secret"))
                     })
                     .map(|i| (k.0, i.inner()))
             })
