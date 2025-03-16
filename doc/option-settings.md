@@ -41,7 +41,7 @@ It decrypting secrets into this directory, with generation number like `/run/vau
 
 This generally has no need to manually change, unless you know clearly what you're doing.
 
-Ed25519 host private ssh key (identity) path that used for decrypting secrets while deploying.
+Host private ssh key (identity) path that used for decrypting secrets while deploying.
 
 format:
 
@@ -68,9 +68,9 @@ hostPubkey = ./ssh_host_ed25519_key.pub # no one like this i think
 
 ssh public key of the hostKey. This is different from every host, since each generates host key while initial booting.
 
-Get this of remote machine by: `ssh-keyscan ip`. It supports `ed25519` type.
+Get this of remote machine by: `ssh-keyscan ip`. Supports `ed25519` and `rsa` type.
 
-You could find it in `/etc/ssh/` next to host ssh private key, with `.pub` suffix.
+You could find it in `/etc/ssh/` near host ssh private key, with `.pub` suffix.
 
 This could be either literal string or path, the previous one is more recommended.
 
