@@ -9,7 +9,7 @@
     vaultix = {
       # minimal works configuration
       nodes = self.nixosConfigurations;
-      identity = "/home/riro/unsafe-test";
+      identity = "/home/who/unsafe-test";
 
       cache = "./dev/secrets/cache"; # relative to the flake root.
     };
@@ -22,7 +22,7 @@
         with inputs.nixpkgs;
         lib.nixosSystem (
           lib.warn
-            "THIS SYSTEM IS ONLY FOR TESTING, If this msg appears in production there MUST be something wrong."
+            "THIS SYSTEM IS ONLY FOR TESTING, If this msg appears in production there MUST be something wrong, please stop operation immediately then check the code."
             {
               inherit system;
               specialArgs = {

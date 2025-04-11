@@ -16,7 +16,7 @@ You could also find the minimal complete nixos configuration on [CI VM test](htt
 
     vaultix = {
       nodes = self.nixosConfigurations;
-      identity = "/home/who/key";
+      identity = "/home/who/private_key"; # age identity file path
     };
 
     nixosConfigurations.host-name = withSystem "x86_64-linux" ({ system, ... }:
@@ -35,7 +35,7 @@ You could also find the minimal complete nixos configuration on [CI VM test](htt
                   services.userborn.enable = true; # or systemd.sysuser, required
 
                   vaultix = {
-                    settings.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEu8luSFCts3g367nlKBrxMdLyOy4Awfo5Rb397ef2BC";
+                    settings.hostPubkey = "ssh-ed25519 AAAAC...";
                     secrets.test-secret-1 = {
                       file = ./secrets/there-is-a-secret.age;
                     };
@@ -50,7 +50,8 @@ You could also find the minimal complete nixos configuration on [CI VM test](htt
   };
 }
 ```
-And you will be able to use secret on any module with, e.g.:
+
+And you will be able to invoke secrets in module, like:
 
 ```
 {
