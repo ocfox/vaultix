@@ -70,7 +70,6 @@ impl Profile {
         fs::read_dir(self.decrypted_mount_point())
     }
 
-    // TODO: try iterate the list of key met type
     pub fn get_host_key_identitys(&self) -> Result<Vec<age::ssh::Identity>> {
         let ssh_key_type =
             if age::ssh::Recipient::from_str(self.settings.host_pubkey.as_str()).is_ok() {
@@ -88,7 +87,7 @@ impl Profile {
             .iter()
             .filter_map(|k| {
                 if k.r#type == ssh_key_type.as_str() {
-                    debug!("found host private key that matches type: {:?}", k);
+                    debug!("found host private key that matches type: {k:?}",);
                     match k.get_identity() {
                         Ok(o) => return Some(o),
                         Err(e) => {
@@ -124,11 +123,11 @@ impl Profile {
                 if !support_ramfs? {
                     let err =
                         "ramfs not supported! Refusing extract secret since it will write to disk";
-                    error!("{}", err);
+                    error!("{err}");
                     eyre::bail!(err);
                 }
                 let path = self.decrypted_mount_point();
-                info!("creating mount point {}", path);
+                info!("creating mount point {path}");
                 fs::create_dir_all(path).wrap_err_with(|| {
                     format!(
                         "creating decrypted mountpoint: {:?}",
@@ -145,7 +144,7 @@ impl Profile {
                     .wrap_err(eyre!("mount tmpfs error"))
             }
             Err(e) => {
-                error!("{}", e);
+                error!("{e}");
                 Err(e).wrap_err(eyre!("read mountpoint error"))
             }
             Ok(ref mut o) => o.try_for_each(|en| {
@@ -154,9 +153,9 @@ impl Profile {
                         match str::parse::<usize>(
                             d.file_name().to_string_lossy().to_string().as_str(),
                         ) {
-                            Err(e) => Err(eyre!("parse mount point generation err: {}", e)),
+                            Err(e) => Err(eyre!("parse mount point generation err: {e}")),
                             Ok(res) => {
-                                debug!("found mountpoint generation {}", res);
+                                debug!("found mountpoint generation {res}");
                                 if res >= max {
                                     max = res + 1;
                                 }
@@ -198,6 +197,8 @@ impl Profile {
 
         let templates = self.templates.iter().filter(|i| if_early(i.0));
 
+        // single execution expect only accept a list of secrets that
+        // "for user or not" are the same, which promised by the nixos module.
         let symlink_dst = if early {
             self.decrypted_dir_for_user()
         } else {
@@ -244,7 +245,7 @@ impl Profile {
             let mut p = PathBuf::from(self.decrypted_mount_point());
             p.push(generation.to_string());
 
-            debug!("target extract dir with generation number: {:?}", p);
+            debug!("target extract dir with generation number: {p:?}");
 
             fs::create_dir_all(&p)
                 .map(|_| p)
@@ -260,7 +261,7 @@ impl Profile {
         macro_rules! generate_dst {
             ($obj:expr, $settings:expr, $target_extract_dir:expr) => {{
                 let default_path = {
-                    let mut p: PathBuf = $settings.decrypted_dir.clone().into();
+                    let mut p: PathBuf = PathBuf::from(symlink_dst);
                     p.push($obj.name());
                     p
                 };
@@ -271,7 +272,7 @@ impl Profile {
                 } else {
                     if PathBuf::from($obj.path()).starts_with(&default_path) {
                         log::warn!(
-                            "extract to decryptedDir detected. recommend specify `name` instead of `path`."
+                            "extraction inside the decrypted directory detected. recommend specify `name` instead of `path`."
                         );
                     }
                     info!("specified decrypt path detected");
@@ -297,7 +298,7 @@ impl Profile {
             })
             .for_each(|res| {
                 if let Err(e) = res {
-                    error!("{}", e);
+                    error!("{e}");
                 }
             });
         info!("finish secrets deployment");
@@ -336,7 +337,7 @@ impl Profile {
                         })
                         .for_each(|(k, v)| {
                             // render and insert
-                            log::trace!("template before process: {}", template);
+                            log::trace!("template before process: {template}");
 
                             let raw_composed_insertial = String::from_utf8_lossy(v).to_string();
 
@@ -358,7 +359,7 @@ impl Profile {
                 })
                 .for_each(|res| {
                     if let Err(e) = res {
-                        error!("{}", e);
+                        error!("{e}");
                     }
                 });
         } else {
