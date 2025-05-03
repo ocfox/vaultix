@@ -11,6 +11,7 @@
     {
       nodes,
       cache ? "./secrets/cache",
+      defaultSecretDirectory ? "./secrets",
       identity,
       extraRecipients ? [ ],
       extraPackages ? [ ],
@@ -24,8 +25,8 @@
       inherit (inputs.nixpkgs) lib;
     in
     {
-      # for nixosSystem finding the cache location
-      inherit cache;
+      # for nixosSystem finding the location with `self.vaultix.*`
+      inherit cache defaultSecretDirectory;
 
       app = lib.genAttrs systems (
         system:
