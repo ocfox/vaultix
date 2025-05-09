@@ -18,7 +18,7 @@ use crate::{
 };
 
 use age::Identity;
-use eyre::{Context, ContextCompat, Result, bail, eyre};
+use eyre::{bail, eyre, Context, ContextCompat, Result};
 use hex::decode;
 use lib::extract_all_hashes;
 use log::{debug, error, info};
@@ -183,7 +183,7 @@ impl Profile {
         })
     }
     /**
-    extract secrets to `/run/vaultix.d/$num` and link to `/run/vaultix`
+    extract secrets to `/run/vaultix.d/<type>/<num>` and link to `/run/vaultix`
     */
     pub fn deploy(&self, early: bool) -> Result<()> {
         if self.secrets.is_empty() && self.templates.is_empty() {
