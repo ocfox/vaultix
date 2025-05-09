@@ -8,5 +8,8 @@ title = "Vaultix Documentation"
 [output.html]
 git-repository-url = "https://github.com/milieuim/vaultix"
 git-repository-icon = "fa-github"
+additional-css = ["./theme/rose-pine-dawn.css"]
+default-theme = "rose-pine-dawn"
+preferred-dark-theme = "ayu"
 
 [preprocessor.alerts]
