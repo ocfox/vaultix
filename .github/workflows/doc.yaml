@@ -5,6 +5,7 @@ on:
     branches: ["*"]
     paths:
       - 'doc/*'
+      - 'book.toml'
   workflow_dispatch:
 
 permissions:
