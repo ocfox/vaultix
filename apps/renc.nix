@@ -15,7 +15,7 @@ let
     concatStringsSep
     attrValues
     makeBinPath
-    throwIfNot
+    filter
     optionalString
     getExe
     ;
@@ -28,25 +28,17 @@ let
       + " "
       + (pkgs.writeTextFile {
         name = "vaultix-material";
-        text =
-          throwIfNot (v.config ? vaultix)
-            ''
-              Host ${v.config.networking.hostName} doesn't had vaultix nixosModule imported.
-              Check your configuration, or remove it from `vaultix.nodes`.
-              If it's fresh setup please follow <https://milieuim.github.io/vaultix/nixos-option.html>
-            ''
-            builtins.toJSON
-            {
-              inherit (v.config.vaultix)
-                beforeUserborn
-                placeholder
-                secrets
-                settings
-                templates
-                ;
-            };
+        text = builtins.toJSON {
+          inherit (v.config.vaultix)
+            beforeUserborn
+            placeholder
+            secrets
+            settings
+            templates
+            ;
+        };
       })
-    ) (attrValues nodes)
+    ) (filter (v: v.config ? vaultix) (attrValues nodes))
   );
 
   rencCmds = "${bin} ${profilesArgs} renc --identity ${identity} --cache ${cache}";
